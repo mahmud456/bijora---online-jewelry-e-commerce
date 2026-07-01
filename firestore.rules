@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'bijoraforyou@gmail.com' ||
+        (request.auth.token.email != null && request.auth.token.email.matches('.*admin.*'))
+      );
+    }
+
+    function isUserAdmin() {
+      return isAdmin() || (
+        isSignedIn() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isUserAdmin();
+      allow list: if isUserAdmin();
+      allow create: if (isOwner(userId) && request.resource.data.role == 'customer') || isUserAdmin();
+      allow update: if (isOwner(userId) && (!request.resource.data.keys().hasAny(['role']) || request.resource.data.role == resource.data.role)) || isUserAdmin();
+      allow delete: if isUserAdmin();
+    }
+
+    // Products Collection
+    match /products/{productId} {
+      allow read, get, list: if true;
+      allow create, delete: if isUserAdmin();
+      allow update: if isUserAdmin() || (
+        isSignedIn() && 
+        (
+          // Stock update (purchasing)
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock']) && 
+           request.resource.data.stock < resource.data.stock && 
+           request.resource.data.stock >= 0) ||
+          // Ratings update (submitting reviews)
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['averageRating', 'totalReviews'])
+        )
+      );
+    }
+
+    // Categories Collection
+    match /categories/{categoryId} {
+      allow read, get, list: if true;
+      allow write: if isUserAdmin();
+    }
+
+    // Coupons Collection
+    match /coupons/{couponCode} {
+      allow read, get, list: if true;
+      allow write: if isUserAdmin();
+    }
+
+    // Settings Collection (Web Settings & Branding)
+    match /settings/{settingId} {
+      allow read, get, list: if true;
+      allow write: if isUserAdmin();
+    }
+
+    // Reviews Collection
+    match /reviews/{reviewId} {
+      allow read, get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isUserAdmin());
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      allow get: if isUserAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid) || (!isSignedIn() && resource.data.userId == 'guest');
+      allow list: if isUserAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if (isSignedIn() && request.resource.data.userId == request.auth.uid) || (!isSignedIn() && request.resource.data.userId == 'guest');
+      allow update, delete: if isUserAdmin();
+    }
+  }
+}

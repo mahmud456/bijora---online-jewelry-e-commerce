@@ -1,0 +1,147 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "deliveryAddress": { "type": "string" },
+        "district": { "type": "string" },
+        "area": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "customer"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "fullName", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "A jewelry product",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "sku": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "originalPrice": { "type": "number" },
+        "discountPrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "images": { "type": "array" },
+        "featured": { "type": "boolean" },
+        "newArrival": { "type": "boolean" },
+        "averageRating": { "type": "number" },
+        "totalReviews": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "sku", "category", "originalPrice", "stock", "images"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product category",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "image": { "type": "string" }
+      },
+      "required": ["id", "name", "slug"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "An order placed by a customer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "district": { "type": "string" },
+        "area": { "type": "string" },
+        "address": { "type": "string" },
+        "orderNote": { "type": "string" },
+        "products": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "shippingCharge": { "type": "number" },
+        "discount": { "type": "number" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Processing", "Completed", "Cancelled"] },
+        "timestamp": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "customerName", "customerPhone", "district", "area", "address", "products", "subtotal", "shippingCharge", "discount", "total", "status", "timestamp"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "A product review",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "productId", "userId", "userName", "rating", "comment", "timestamp"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "A discount coupon",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "discountType": { "type": "string", "enum": ["percent", "fixed"] },
+        "value": { "type": "number" },
+        "minPurchase": { "type": "number" }
+      },
+      "required": ["code", "discountType", "value"]
+    },
+    "WebSettings": {
+      "title": "WebSettings",
+      "description": "Global website branding and layout configurations",
+      "type": "object",
+      "properties": {
+        "logoUrl": { "type": "string" },
+        "theme": { "type": "string" },
+        "sectionsOrder": { "type": "array" },
+        "sections": { "type": "object" }
+      },
+      "required": ["logoUrl", "theme", "sectionsOrder", "sections"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles"
+    },
+    "products/{productId}": {
+      "schema": "Product",
+      "description": "Store products"
+    },
+    "categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Product categories"
+    },
+    "orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders"
+    },
+    "reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Product reviews"
+    },
+    "coupons/{couponCode}": {
+      "schema": "Coupon",
+      "description": "Discount coupons"
+    },
+    "settings/{settingId}": {
+      "schema": "WebSettings",
+      "description": "Website global configuration settings"
+    }
+  }
+}

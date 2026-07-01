@@ -1,0 +1,6 @@
+{
+  "name": "Bijora - Online Jewelry E-Commerce",
+  "description": "An elegant, highly premium jewelry e-commerce platform with dual English/Bangla language support, WhatsApp and Messenger checkout, a secure Administrator Dashboard, and an AI Stylist assistant powered by Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
